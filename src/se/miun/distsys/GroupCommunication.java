@@ -11,6 +11,11 @@ import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
 
+
+
+
+
+//ändra här
 public class GroupCommunication {
 	
 	private final int datagramSocketPort = 1337; //You need to change this!
