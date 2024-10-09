@@ -28,6 +28,9 @@ public class UserManager {
     public List<User> getUserList(){
         return new ArrayList<>(userList.values());
     }
+    public boolean userExists(String username) {
+        return userList.containsKey(username);
+    }
     public void updateList(List <User> users){
         userList.clear();
         for(User user : users){

@@ -79,6 +79,7 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 
         // Title Area
         JLabel titleLabel = new JLabel("Chat Application", JLabel.CENTER);
+        
         titleLabel.setBorder(BorderFactory.createTitledBorder(""));
         frame.add(titleLabel, BorderLayout.NORTH); 
 
