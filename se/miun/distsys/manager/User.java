@@ -1,4 +1,4 @@
-package se.miun.distsys;
+package se.miun.distsys.manager;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class User {
-    private static List<User> userList = new ArrayList<>();
+    private static List<User> userList = new ArrayList<>(); // behövs denna?
     private String id;
     private String username;
 
@@ -36,3 +36,4 @@ public class User {
         return userList;
     }
 }
+// test commit

@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 
 import se.miun.distsys.GroupCommunication;
 import se.miun.distsys.listeners.ChatMessageListener;
+import se.miun.distsys.manager.User;
+import se.miun.distsys.manager.UserManager;
 import se.miun.distsys.messages.ChatMessage;
 
 import javax.swing.BorderFactory;
@@ -31,7 +33,7 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
     JTextPane txtpnMessage = new JTextPane();
     DefaultListModel<String> userListModel = new DefaultListModel<>(); // To hold the list of users
     JList<String> userList = new JList<>(userListModel); // Display the user list
-
+    UserManager um = new UserManager();
     GroupCommunication gc = null;
 
     public static void main(String[] args) {
@@ -53,7 +55,21 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
 		System.out.println("Group Communication Started");
+
+        User theUser = new User();
+        
+        um.addUser(theUser);
+        updateUserListFrame();
+
+        // Add the user to the user list
+        
 	}
+    private void updateUserListFrame() {
+        userListModel.clear();
+        for (User user : um.getUserList()) {
+            userListModel.addElement(user.getUsername());
+        }
+    }
 
     public void initializeFrame() {
         frame = new JFrame();
@@ -69,13 +85,13 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setPreferredSize(new Dimension(300, 400)); 
         
-        // Chat area (70% height)
+        // Chat area 
         JScrollPane scrollPane = new JScrollPane(txtpnChat);
         txtpnChat.setEditable(false);
         txtpnChat.setBorder(BorderFactory.createTitledBorder("--== Group Chat ==--"));
         chatPanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Typing and button area (30% height)
+        // Typing and button area
         JPanel typingPanel = new JPanel(new BorderLayout());
         txtpnMessage.setText("Message");
         txtpnMessage.setPreferredSize(new Dimension(300, 100)); 
@@ -96,10 +112,11 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
         JScrollPane userScrollPane = new JScrollPane(userList);
         userListPanel.add(userScrollPane, BorderLayout.CENTER);
 
-        // Add user list panel to the right (50% width)
+        // Add user list panel to the right 
         frame.add(userListPanel, BorderLayout.CENTER);
+        
 
-        // Window closing listener to handle shutdown
+        // Window closing listener
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent winEvt) {
                 gc.shutdown();

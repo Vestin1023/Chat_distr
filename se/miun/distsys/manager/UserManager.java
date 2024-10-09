@@ -4,57 +4,35 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserManager {
     private static List<UserManager> managerList = new ArrayList<>();
-    private String id;
-    private String username;
+    private Map<String, User> userList; // Cannot infer type arguments for hashmap? fix java.until.Map
 
-    public UserManager() {
-        this.id = UUID.randomUUID().toString();
-        this.username = createUsername();
-        managerList.add(this);
+    public UserManager(){
+        userList = new HashMap<>();
     }
 
-    private String createUsername() {
-        return JOptionPane.showInputDialog(null, "Enter your username:", "Username Creation", JOptionPane.PLAIN_MESSAGE);
+    public void addUser(User user){
+        userList.put(user.getId(), user);
     }
-
-    public static void removeManager(UserManager manager) {
-        managerList.remove(manager);
+    public void removeUser(User user){
+        userList.remove(user.getId());
     }
-
-    public String getId() {
-        return id;
+    public User getUser(String id){
+        return userList.get(id);
     }
-
-    public String getUsername() {
-        return username;
+    public List<User> getUserList(){
+        return new ArrayList<>(userList.values());
     }
-
-    public static List<UserManager> getManagerList() {
-        return managerList;
-    }
-
-    public static void main(String[] args) {
-        UserManager manager1 = new UserManager();
-        System.out.println("Manager created: " + manager1.getUsername() + " with ID: " + manager1.getId());
-
-        UserManager manager2 = new UserManager();
-        System.out.println("Manager created: " + manager2.getUsername() + " with ID: " + manager2.getId());
-
-        System.out.println("Current managers: ");
-        for (UserManager manager : managerList) {
-            System.out.println(manager.getUsername() + " with ID: " + manager.getId());
-        }
-
-        removeManager(manager1);
-        System.out.println("Manager " + manager1.getUsername() + " removed.");
-
-        System.out.println("Current managers: ");
-        for (UserManager manager : managerList) {
-            System.out.println(manager.getUsername() + " with ID: " + manager.getId());
+    public void updateList(List <User> users){
+        userList.clear();
+        for(User user : users){
+            userList.put(user.getId(), user);
         }
     }
+  
 }
