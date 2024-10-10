@@ -11,14 +11,9 @@ import se.miun.distsys.messages.ChatMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
 
-
-
-
-
-//ändra här
 public class GroupCommunication {
 	
-	private final int datagramSocketPort = 1337; //You need to change this!
+	private final int datagramSocketPort = 3643; //You need to change this!
 	DatagramSocket datagramSocket = null;	
 	boolean runGroupCommunication = true;
 	MessageSerializer messageSerializer = new MessageSerializer();
@@ -87,9 +82,8 @@ public class GroupCommunication {
 			ChatMessage chatMessage = new ChatMessage(chat);
 			byte[] sendData = messageSerializer.serializeMessage(chatMessage);
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
-					InetAddress.getByName("10.82.244.39"), 666); //datagramSocketPort
+					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
 			datagramSocket.send(sendPacket);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		

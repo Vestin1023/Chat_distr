@@ -44,7 +44,6 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
 		System.out.println("Group Communication Started");
-		gc.sendChatMessage("Vestin in the chat!");
 	}
 
 	private void initializeFrame() {
