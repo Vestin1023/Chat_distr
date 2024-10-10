@@ -8,9 +8,12 @@ import javax.swing.JPanel;
 
 import se.miun.distsys.GroupCommunication;
 import se.miun.distsys.listeners.ChatMessageListener;
+import se.miun.distsys.listeners.JoinLeaveMessageListener;
 import se.miun.distsys.manager.User;
 import se.miun.distsys.manager.UserManager;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -24,17 +27,31 @@ import java.awt.event.WindowEvent;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 
+
 //Skeleton code for Distributed systems
 
-public class WindowProgram implements ChatMessageListener, ActionListener {
+public class WindowProgram implements ChatMessageListener, ActionListener, JoinLeaveMessageListener {
 
     JFrame frame;
     JTextPane txtpnChat = new JTextPane();
     JTextPane txtpnMessage = new JTextPane();
     DefaultListModel<String> userListModel = new DefaultListModel<>(); // To hold the list of users
     JList<String> userList = new JList<>(userListModel); // Display the user list
-    UserManager um = new UserManager();
     GroupCommunication gc = null;
+    UserManager um = new UserManager(gc);
+    
+
+    @Override
+    public void onIncomingJoinMessage(JoinMessage joinMessage) {
+        um.handleJoinMessage(joinMessage);
+        updateUserListFrame();
+    }
+
+    @Override
+    public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
+        um.handleLeaveMessage(leaveMessage);
+        updateUserListFrame();
+    }
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -51,12 +68,15 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	public WindowProgram() {
 		initializeFrame();
 		
-
+        
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
+        gc.setJoinLeaveMessageListener(this);
 		System.out.println("Group Communication Started");
-
+        um = new UserManager(gc);
         User theUser = new User();
+        um.addUser(theUser);
+        updateUserListFrame();
         
         um.addUser(theUser);
         updateUserListFrame();

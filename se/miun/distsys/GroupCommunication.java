@@ -7,9 +7,14 @@ import java.net.MulticastSocket;
 import java.util.Random;
 
 import se.miun.distsys.listeners.ChatMessageListener;
+import se.miun.distsys.listeners.JoinLeaveMessageListener;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
+
+import se.miun.distsys.manager.User;
 
 
 
@@ -17,7 +22,51 @@ import se.miun.distsys.messages.MessageSerializer;
 
 //ändra här
 public class GroupCommunication {
+	private JoinLeaveMessageListener joinLeaveMessageListener = null;
+
+	public void sendJoinMessage(JoinMessage joinMessage) {
+		try {
+            byte[] sendData = messageSerializer.serializeMessage(joinMessage);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                    InetAddress.getByName("255.255.255.255"), datagramSocketPort);
+            datagramSocket.send(sendPacket);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
+	public void sendLeaveMessage(LeaveMessage leaveMessage) {
+        try {
+            byte[] sendData = messageSerializer.serializeMessage(leaveMessage);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                    InetAddress.getByName("255.255.255.255"), datagramSocketPort);
+            datagramSocket.send(sendPacket);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 	
+	private void handleMessage(Message message) {
+        if (message instanceof JoinMessage) {
+            if (joinLeaveMessageListener != null) {
+                joinLeaveMessageListener.onIncomingJoinMessage((JoinMessage) message);
+            }
+        } else if (message instanceof LeaveMessage) {
+            if (joinLeaveMessageListener != null) {
+                joinLeaveMessageListener.onIncomingLeaveMessage((LeaveMessage) message);
+            }
+        } else if (message instanceof ChatMessage) {
+            if (chatMessageListener != null) {
+                chatMessageListener.onIncomingChatMessage((ChatMessage) message);
+            }
+        } else {
+            System.out.println("Unknown message type");
+        }
+    }
+
+    public void setJoinLeaveMessageListener(JoinLeaveMessageListener listener) {
+        this.joinLeaveMessageListener = listener;
+	}
+
 	private final int datagramSocketPort = 3466; //You need to change this!
 	DatagramSocket datagramSocket = null;	
 	boolean runGroupCommunication = true;

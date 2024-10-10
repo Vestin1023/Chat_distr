@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class User {
+public class User implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
     private static List<User> userList = new ArrayList<>(); // behövs denna?
     private String id;
     private String username;
