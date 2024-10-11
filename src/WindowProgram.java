@@ -6,16 +6,20 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import se.miun.distsys.GroupCommunication;
+import se.miun.distsys.User.User;
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JTextPane;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.Random;
 
 import javax.swing.JScrollPane;
 
@@ -28,9 +32,11 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	JTextPane txtpnMessage = new JTextPane();
 	
 	GroupCommunication gc = null;
-	DefaultListModel<String> userListModel = new DefaultListModel<>();
-    JList<String> userList = new JList<>(userListModel);
-	
+	DefaultListModel<User> userListModel = new DefaultListModel<>();
+	JList<User> userList = new JList<>(userListModel);  // Use JList<User>
+
+	HashMap<String, User> activeUsers = new HashMap<>();
+	private String username = "User" + new Random().nextInt(1000);
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -50,6 +56,7 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
+		gc.sendJoinMessage(username);
 		System.out.println("Group Communication Started");
 	}
 
@@ -84,9 +91,9 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
         frame.getContentPane().add(inputPanel, BorderLayout.SOUTH);
 		
 		frame.addWindowListener(new java.awt.event.WindowAdapter() {
-	        public void windowClosing(WindowEvent winEvt) {
-	            gc.shutdown();
-	        }
+			public void windowClosing(WindowEvent winEvt) {
+				handleWindowClosing();
+			}
 	    });
 	}
 
@@ -100,6 +107,30 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	@Override
 	public void onIncomingChatMessage(ChatMessage chatMessage) {	
 		txtpnChat.setText(chatMessage.chat + "\n" + txtpnChat.getText());
-		userListModel.addElement("New User");				
+		//userListModel.addElement("New User");				//test adding user
+	}
+
+	 @Override
+    public void onIncomingJoinMessage(JoinMessage joinMessage) {
+        User newUser = new User(joinMessage.username);
+        activeUsers.put(joinMessage.username, newUser);
+        userListModel.addElement(newUser);
+        System.out.println(joinMessage.username + " has joined.");
+
+        // Send current user list to the newly joined client (logic needed for sending user list)
+    }
+	@Override
+    public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
+        User user = activeUsers.remove(leaveMessage.username);
+        if (user != null) {
+            userListModel.removeElement(user);
+            System.out.println(leaveMessage.username + " has left.");
+        }
+    }
+
+	// Handle shutdown and send Leave message
+	private void handleWindowClosing() {
+		gc.sendLeaveMessage(username);
+		gc.shutdown();
 	}
 }

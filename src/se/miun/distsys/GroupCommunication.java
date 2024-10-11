@@ -8,8 +8,11 @@ import java.util.Random;
 
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 import se.miun.distsys.messages.Message;
 import se.miun.distsys.messages.MessageSerializer;
+
 
 public class GroupCommunication {
 	
@@ -20,7 +23,55 @@ public class GroupCommunication {
 
 	//Listeners
 	ChatMessageListener chatMessageListener = null;	
+	public void setChatMessageListener(ChatMessageListener listener) {
+		this.chatMessageListener = listener;		
+	} 
+
+	public void sendJoinMessage(String username) {
+		JoinMessage joinMessage = new JoinMessage(username);
+		sendMessage(joinMessage);
+
+	}
+	public void sendLeaveMessage(String username) {
+		LeaveMessage leaveMessage = new LeaveMessage(username);
+		sendMessage(leaveMessage);
+	}
+
 	
+	public void handleIncomingMessage(Message message) {
+        if (message instanceof JoinMessage) {
+            JoinMessage joinMessage = (JoinMessage) message;
+            if (chatMessageListener != null) {
+                chatMessageListener.onIncomingJoinMessage(joinMessage);
+            }
+        } else if (message instanceof LeaveMessage) {
+            LeaveMessage leaveMessage = (LeaveMessage) message;
+            if (chatMessageListener != null) {
+                chatMessageListener.onIncomingLeaveMessage(leaveMessage);
+            }
+        }
+    }
+
+	public void sendChatMessage(String text) {
+        ChatMessage chatMessage = new ChatMessage(text);
+        sendMessage(chatMessage);
+    }
+	//UDP Logic
+	private void sendMessage(Message message) {
+		try {
+			byte[] sendData = messageSerializer.serializeMessage(message);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255" /*Broadcast address*/), datagramSocketPort);
+			datagramSocket.send(sendPacket);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+
+
+
 	public GroupCommunication() {
 		try {
 			datagramSocket = new MulticastSocket(datagramSocketPort);
@@ -77,20 +128,6 @@ public class GroupCommunication {
 		}
 	}	
 	
-	public void sendChatMessage(String chat) {
-		try {
-			ChatMessage chatMessage = new ChatMessage(chat);
-			byte[] sendData = messageSerializer.serializeMessage(chatMessage);
-			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, 
-					InetAddress.getByName("255.255.255.255"), datagramSocketPort);
-			datagramSocket.send(sendPacket);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-	}
 
-	public void setChatMessageListener(ChatMessageListener listener) {
-		this.chatMessageListener = listener;		
-	}
 	
 }
