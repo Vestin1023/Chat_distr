@@ -57,6 +57,7 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
 		gc.sendJoinMessage(username);
+		
 		System.out.println("Group Communication Started");
 	}
 

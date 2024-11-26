@@ -4,6 +4,8 @@ import java.io.InputStreamReader;
 import se.miun.distsys.GroupCommunication;
 import se.miun.distsys.listeners.ChatMessageListener;
 import se.miun.distsys.messages.ChatMessage;
+import se.miun.distsys.messages.JoinMessage;
+import se.miun.distsys.messages.LeaveMessage;
 
 //Skeleton code for Distributed systems
 
@@ -12,6 +14,18 @@ public class Program implements ChatMessageListener{
 	boolean runProgram = true;
 	
 	GroupCommunication gc = null;
+
+    @Override
+    public void onIncomingJoinMessage(JoinMessage joinMessage) {
+        // Handle incoming join message
+        System.out.println("User joined: " + joinMessage.username);
+    }
+
+    @Override
+    public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
+        // Handle incoming leave message
+        System.out.println("User left: " + leaveMessage.username);
+    }
 	
 	public static void main(String[] args) {
 		Program program = new Program();

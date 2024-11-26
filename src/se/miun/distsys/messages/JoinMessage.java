@@ -1,6 +1,8 @@
 package se.miun.distsys.messages;
 
-public class JoinMessage extends Message {
+import java.io.Serializable;
+
+public class JoinMessage extends Message implements Serializable {
     public String username;
     
     public JoinMessage(String username) {

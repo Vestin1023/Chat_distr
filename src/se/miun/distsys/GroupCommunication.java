@@ -27,6 +27,8 @@ public class GroupCommunication {
 		this.chatMessageListener = listener;		
 	} 
 
+
+
 	public void sendJoinMessage(String username) {
 		JoinMessage joinMessage = new JoinMessage(username);
 		sendMessage(joinMessage);
@@ -39,17 +41,24 @@ public class GroupCommunication {
 
 	
 	public void handleIncomingMessage(Message message) {
-        if (message instanceof JoinMessage) {
-            JoinMessage joinMessage = (JoinMessage) message;
-            if (chatMessageListener != null) {
-                chatMessageListener.onIncomingJoinMessage(joinMessage);
-            }
-        } else if (message instanceof LeaveMessage) {
-            LeaveMessage leaveMessage = (LeaveMessage) message;
-            if (chatMessageListener != null) {
-                chatMessageListener.onIncomingLeaveMessage(leaveMessage);
-            }
-        }
+		if (message instanceof JoinMessage) {
+			JoinMessage joinMessage = (JoinMessage) message;
+			if (chatMessageListener != null) {
+				chatMessageListener.onIncomingJoinMessage(joinMessage);
+			}
+		} else if (message instanceof LeaveMessage) {
+			LeaveMessage leaveMessage = (LeaveMessage) message;
+			if (chatMessageListener != null) {
+				chatMessageListener.onIncomingLeaveMessage(leaveMessage);
+			}
+		} else if (message instanceof ChatMessage) {
+			ChatMessage chatMessage = (ChatMessage) message;
+			if (chatMessageListener != null) {
+				chatMessageListener.onIncomingChatMessage(chatMessage);
+			}
+		} else {
+			System.out.println("Unknown message type: " + message.getClass().getName());
+		}
     }
 
 	public void sendChatMessage(String text) {
