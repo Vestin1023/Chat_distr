@@ -3,6 +3,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import se.miun.distsys.GroupCommunication;
@@ -19,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JScrollPane;
@@ -36,7 +38,8 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	JList<User> userList = new JList<>(userListModel);  // Use JList<User>
 
 	HashMap<String, User> activeUsers = new HashMap<>();
-	private String username = "User" + new Random().nextInt(1000);
+	private String username;
+
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -52,17 +55,24 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	}
 
 	public WindowProgram() {
+
+
+		username = JOptionPane.showInputDialog(null, "Enter username", "Username input", JOptionPane.QUESTION_MESSAGE);
+		if (username == null || username.trim().isEmpty()) {
+            username = "User" + System.currentTimeMillis(); // Default username if none provided
+        }
+
 		initializeFrame();
 
 		gc = new GroupCommunication();
 		gc.setChatMessageListener(this);
 		gc.sendJoinMessage(username);
 		
-		System.out.println("Group Communication Started");
+		System.out.println("Group Communication Started" + username);
 	}
 
 	private void initializeFrame() {
-		frame = new JFrame();
+		frame = new JFrame(username);
 		frame.setBounds(100, 100, 600, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout());
@@ -115,7 +125,7 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
     public void onIncomingJoinMessage(JoinMessage joinMessage) {
         User newUser = new User(joinMessage.username);
         activeUsers.put(joinMessage.username, newUser);
-        userListModel.addElement(newUser);
+		updateUserList();
         System.out.println(joinMessage.username + " has joined.");
 
         // Send current user list to the newly joined client (logic needed for sending user list)
@@ -123,10 +133,18 @@ public class WindowProgram implements ChatMessageListener, ActionListener {
 	@Override
     public void onIncomingLeaveMessage(LeaveMessage leaveMessage) {
         User user = activeUsers.remove(leaveMessage.username);
+		updateUserList();
         if (user != null) {
-            userListModel.removeElement(user);
             System.out.println(leaveMessage.username + " has left.");
         }
+    }
+
+	private void updateUserList() {
+        userListModel.clear();
+		for (User user : activeUsers.values()) {
+			userListModel.addElement(user);
+		}
+		userList.updateUI();
     }
 
 	// Handle shutdown and send Leave message
